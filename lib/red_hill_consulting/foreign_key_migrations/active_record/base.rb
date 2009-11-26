@@ -7,7 +7,9 @@ module RedHillConsulting::ForeignKeyMigrations::ActiveRecord
     module ClassMethods
       def references(table_name, column_name, options = {})
         column_name = column_name.to_s
-        if options.has_key?(:references)
+        if respond_to?(:foreign_key_migrations_enabled) and not foreign_key_migrations_enabled
+          nil
+        elsif options.has_key?(:references)
           references = options[:references]
           references = [references, :id] unless references.nil? || references.is_a?(Array)
           references

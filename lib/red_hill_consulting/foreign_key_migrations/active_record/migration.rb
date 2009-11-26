@@ -1,10 +1,18 @@
 module RedHillConsulting::ForeignKeyMigrations::ActiveRecord
   module Migration
     def self.included(base)
-      base.extend(ClassMethods)
+      base.class_eval do
+        class << self
+          alias :connection_without_foreign_key_migrations :connection
+        
+          def connection
+            connection_without_foreign_key_migrations.extend(AddColumnOverride)
+          end
+        end
+      end
     end
-
-    module ClassMethods
+    
+    module AddColumnOverride
       def add_column(table_name, column_name, type, options = {})
         super
         references = ActiveRecord::Base.references(table_name, column_name, options)
